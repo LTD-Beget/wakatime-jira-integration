@@ -1,0 +1,24 @@
+{
+  "name": "ltd-beget/wakatime-jira-integration",
+  "license": "MIT",
+  "type": "library",
+  "description": "Wakatime to Jira Integration",
+  "keywords": [],
+  "authors": [
+    {
+      "name": "Viskov Sergey",
+      "homepage": "https://github.com/voksiv"
+    }
+  ],
+  "require": {
+    "php": ">=7.0",
+    "chobie/jira-api-restclient" : "v1.0.0",
+    "mabasic/wakatime-php-api" : "2.0.2"
+  },
+  "require-dev": {},
+  "autoload": {
+    "psr-0": {
+      "LTDBeget\\jiraIntegration": "src"
+    }
+  }
+}
