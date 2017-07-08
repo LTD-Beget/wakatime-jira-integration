@@ -26,13 +26,50 @@ class Programmer
     private $wakatime;
 
     /**
+     * @var CoddingActivity
+     */
+    private $coddingActivity;
+
+    /**
      * Programmer constructor.
      * @param string $wakatimeApiKey
      */
     public function __construct(string $wakatimeApiKey)
     {
-        $this->wakatime       = new WakaTime(new Guzzle, $wakatimeApiKey);
-        $this->wakatimeApiKey = $wakatimeApiKey;
+        $this->wakatime        = new WakaTime(new Guzzle, $wakatimeApiKey);
+        $this->wakatimeApiKey  = $wakatimeApiKey;
+        $this->coddingActivity = new CoddingActivity();
+        foreach ($this->getTodayProjects() as $project) {
+            $summaries = $this->wakatime->durations($this->getTodayWithWakaTimeFormat(), $project);
+            // TODO check array key exists!
+            foreach ($summaries['data'] as $summary) {
+                $this->coddingActivity->add($summary['project'], $summary['branch'], $summary['duration']);
+            }
+        }
+    }
+
+    private function getTodayProjects(): array
+    {
+        $summaries = $this->wakatime->durations($this->getTodayWithWakaTimeFormat());
+        $projects  = [];
+        foreach ($summaries['data'] as $dataChunk) {
+            $projects[] = $dataChunk["project"];
+        }
+
+        return $projects;
+    }
+
+    private function getTodayWithWakaTimeFormat(): string
+    {
+        return (new \DateTime)->format("Y-m-d");
+    }
+
+    /**
+     * @return CoddingActivity
+     */
+    public function getCoddingActivity(): CoddingActivity
+    {
+        return $this->coddingActivity;
     }
 
     /**
@@ -42,16 +79,17 @@ class Programmer
      * @return string[]
      */
     public function getActiveBranches() : array {
-        $this->wakatime->heartbeats("2017-07-05", "time,project,branch");
-        // собственно отсюда можно достать активность за последний час или любой другой период
-
-        print_r(
-//            $this->wakatime->durations("2017-07-05", "wakatime-jira-integration")
-            $this->wakatime->heartbeats("2017-07-05", "time,project,branch")
-        );
+//        $this->wakatime->heartbeats("2017-07-05", "time,project,branch");
+//        // собственно отсюда можно достать активность за последний час или любой другой период
+//
+//        print_r(
+////            $this->wakatime->durations("2017-07-05", "wakatime-jira-integration")
+//            $this->wakatime->heartbeats("2017-07-05", "time,project,branch")
+//        );
 
         return [];
     }
+
 
 
     // получить список активных иш

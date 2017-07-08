@@ -11,4 +11,4 @@ require './vendor/autoload.php';
 
 $programmer = new Programmer("dcf86605-d4f1-495f-bffb-1a71877eb73e");
 
-print_r($programmer->getActiveBranches());
+print_r($programmer->getCoddingActivity());
