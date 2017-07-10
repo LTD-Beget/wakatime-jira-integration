@@ -7,6 +7,9 @@
 
 namespace LTDBeget\jiraIntegration;
 
+use GuzzleHttp\Client as Guzzle;
+use Mabasic\WakaTime\WakaTime;
+
 /**
  * Class Programmer
  * @package LTDBeget\jiraIntegration
@@ -14,35 +17,68 @@ namespace LTDBeget\jiraIntegration;
 class Programmer
 {
     /**
+     * @var string
+     */
+    private $wakatimeApiKey;
+    /**
+     * @var WakaTime
+     */
+    private $wakatime;
+
+    /**
+     * @var CoddingActivity
+     */
+    private $coddingActivity;
+
+    /**
      * Programmer constructor.
      * @param string $wakatimeApiKey
      */
     public function __construct(string $wakatimeApiKey)
     {
-        $this->wakatimeApiKey = $wakatimeApiKey;
+        $this->wakatime        = new WakaTime(new Guzzle, $wakatimeApiKey);
+        $this->wakatimeApiKey  = $wakatimeApiKey;
+        $this->coddingActivity = new CoddingActivity();
+        foreach ($this->getTodayProjects() as $project) {
+            $summaries = $this->wakatime->durations($this->getTodayWithWakaTimeFormat(), $project);
+            if(!array_key_exists("data", $summaries)) {
+                continue;
+            }
+            foreach ($summaries['data'] as $summary) {
+                if( !array_key_exists("project", $summary) ||
+                    !array_key_exists("branch", $summary) ||
+                    !array_key_exists("duration", $summary)) {
+                    continue;
+                }
+
+                $this->coddingActivity->add($summary['project'], $summary['branch'], $summary['duration']);
+            }
+        }
     }
 
-    /**
-     * @var string
-     */
-    private $wakatimeApiKey;
-
-    /**
-     * @return string
-     */
-    public function getWakatimeApiKey(): String
+    private function getTodayProjects(): array
     {
-        return $this->wakatimeApiKey;
+        $summaries = $this->wakatime->durations($this->getTodayWithWakaTimeFormat());
+        $projects  = [];
+        if(array_key_exists("data", $summaries)) {
+            foreach ($summaries['data'] as $dataChunk) {
+                $projects[] = $dataChunk["project"];
+            }
+        }
+
+        return $projects;
     }
 
+    private function getTodayWithWakaTimeFormat(): string
+    {
+        return (new \DateTime)->format("Y-m-d");
+    }
 
     /**
-     * Вытаскиваем имена всех веток по всем проектам программиста за последнии N часов активности
-     * Это ветки в контексте которых программист сейчас работает
-     *
-     * @return string[]
+     * @return CoddingActivity
      */
-    public function getActiveBranches() : array {
-        return [];
+    public function getCoddingActivity(): CoddingActivity
+    {
+        return $this->coddingActivity;
     }
 }
