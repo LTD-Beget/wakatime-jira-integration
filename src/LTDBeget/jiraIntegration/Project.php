@@ -53,4 +53,13 @@ class Project
 
         return $this;
     }
+
+    /**
+     * @return \Generator
+     */
+    public function iterateActivity() {
+        foreach ($this->branchAndTimeSpent as $branch => $timeSpent) {
+            yield $branch => $timeSpent;
+        }
+    }
 }

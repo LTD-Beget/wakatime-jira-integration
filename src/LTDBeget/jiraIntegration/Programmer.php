@@ -41,8 +41,16 @@ class Programmer
         $this->coddingActivity = new CoddingActivity();
         foreach ($this->getTodayProjects() as $project) {
             $summaries = $this->wakatime->durations($this->getTodayWithWakaTimeFormat(), $project);
-            // TODO check array key exists!
+            if(!array_key_exists("data", $summaries)) {
+                continue;
+            }
             foreach ($summaries['data'] as $summary) {
+                if( !array_key_exists("project", $summary) ||
+                    !array_key_exists("branch", $summary) ||
+                    !array_key_exists("duration", $summary)) {
+                    continue;
+                }
+
                 $this->coddingActivity->add($summary['project'], $summary['branch'], $summary['duration']);
             }
         }
@@ -52,8 +60,10 @@ class Programmer
     {
         $summaries = $this->wakatime->durations($this->getTodayWithWakaTimeFormat());
         $projects  = [];
-        foreach ($summaries['data'] as $dataChunk) {
-            $projects[] = $dataChunk["project"];
+        if(array_key_exists("data", $summaries)) {
+            foreach ($summaries['data'] as $dataChunk) {
+                $projects[] = $dataChunk["project"];
+            }
         }
 
         return $projects;
@@ -71,30 +81,4 @@ class Programmer
     {
         return $this->coddingActivity;
     }
-
-    /**
-     * Вытаскиваем имена всех веток по всем проектам программиста за последний час активности
-     * Это ветки в контексте которых программист сейчас работает
-     *
-     * @return string[]
-     */
-    public function getActiveBranches() : array {
-//        $this->wakatime->heartbeats("2017-07-05", "time,project,branch");
-//        // собственно отсюда можно достать активность за последний час или любой другой период
-//
-//        print_r(
-////            $this->wakatime->durations("2017-07-05", "wakatime-jira-integration")
-//            $this->wakatime->heartbeats("2017-07-05", "time,project,branch")
-//        );
-
-        return [];
-    }
-
-
-
-    // получить список активных иш
-    // пересечь их со списком активных веток
-    // попавшие в пересечение это список иш в которых сейчас работает программист
-    // не попавшие активные те над которыми он перестал работать или с которых переключится
-    // их нужно перевести в to do
 }
