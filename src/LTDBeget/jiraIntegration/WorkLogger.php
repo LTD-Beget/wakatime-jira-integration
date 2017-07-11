@@ -32,7 +32,7 @@ class WorkLogger
         $coddingActivity = $programmer->getCoddingActivity();
         foreach ($coddingActivity->iterateProjects() as $project) {
             foreach ($project->iterateActivity() as $branch => $timeSpent) {
-                $this->apiLogWork($branch, $timeSpent);
+                $this->apiLogWork($branch, $timeSpent, $project->getName(), $programmer);
             }
         }
     }
@@ -42,9 +42,11 @@ class WorkLogger
      * @param int $timeSpentSeconds
      * @return mixed
      */
-    private function apiLogWork(string $issieKey, int $timeSpentSeconds) {
+    private function apiLogWork(string $issieKey, int $timeSpentSeconds, string $project, Programmer $programmer) {
+        $name = $programmer->getName();
+        $email = $programmer->getEmail();
         return $this->api->api(Jira_Api::REQUEST_POST, "/rest/api/2/issue/$issieKey/worklog", [
-            "comment" => "Automatic work log",
+            "comment" => "Automatic work log for project: $project for $name $email",
             "started" => (new \DateTime)->format("Y-m-d\TH:i:s.000+0000"),
             "timeSpentSeconds" => $timeSpentSeconds
         ]);

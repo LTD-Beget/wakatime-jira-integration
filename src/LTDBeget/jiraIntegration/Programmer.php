@@ -31,6 +31,11 @@ class Programmer
     private $coddingActivity;
 
     /**
+     * @var array
+     */
+    private $userData;
+
+    /**
      * Programmer constructor.
      * @param string $wakatimeApiKey
      */
@@ -54,6 +59,8 @@ class Programmer
                 $this->coddingActivity->add($summary['project'], $summary['branch'], $summary['duration']);
             }
         }
+
+        $this->userData = $this->wakatime->currentUser();
     }
 
     private function getTodayProjects(): array
@@ -80,5 +87,29 @@ class Programmer
     public function getCoddingActivity(): CoddingActivity
     {
         return $this->coddingActivity;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        if(array_key_exists("full_name", $this->userData)) {
+            return $this->userData["full_name"];
+        } else {
+            return "Unknown";
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getEmail(): string
+    {
+        if(array_key_exists("email", $this->userData)) {
+            return $this->userData["email"];
+        } else {
+            return "unknown";
+        }
     }
 }
