@@ -33,7 +33,7 @@ class Programmer
     /**
      * @var array
      */
-    private $userData;
+    private $userData = [];
 
     /**
      * Programmer constructor.
@@ -60,7 +60,10 @@ class Programmer
             }
         }
 
-        $this->userData = $this->wakatime->currentUser();
+        $response = $this->wakatime->currentUser();
+        if(array_key_exists("data", $response)) {
+            $this->userData = $response["data"];
+        }
     }
 
     private function getTodayProjects(): array

@@ -40,13 +40,15 @@ class WorkLogger
     /**
      * @param string $issieKey
      * @param int $timeSpentSeconds
+     * @param string $project
+     * @param Programmer $programmer
      * @return mixed
      */
     private function apiLogWork(string $issieKey, int $timeSpentSeconds, string $project, Programmer $programmer) {
         $name = $programmer->getName();
         $email = $programmer->getEmail();
         return $this->api->api(Jira_Api::REQUEST_POST, "/rest/api/2/issue/$issieKey/worklog", [
-            "comment" => "Automatic work log for project: $project for $name $email",
+            "comment" => "Automatic work log for $name ($email) from project: $project",
             "started" => (new \DateTime)->format("Y-m-d\TH:i:s.000+0000"),
             "timeSpentSeconds" => $timeSpentSeconds
         ]);
