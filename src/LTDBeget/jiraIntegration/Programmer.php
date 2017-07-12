@@ -52,7 +52,12 @@ class Programmer
             foreach ($summaries['data'] as $summary) {
                 if( !array_key_exists("project", $summary) ||
                     !array_key_exists("branch", $summary) ||
-                    !array_key_exists("duration", $summary)) {
+                    !array_key_exists("duration", $summary) ||
+                    $summary['project'] == null ||
+                    $summary['branch'] == null ||
+                    $summary['duration'] == null ||
+                    $summary['duration'] == 0
+                ) {
                     continue;
                 }
 
