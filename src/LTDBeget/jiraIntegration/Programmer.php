@@ -81,7 +81,7 @@ class Programmer
             }
         }
 
-        return $projects;
+        return array_unique($projects);
     }
 
     private function getTodayWithWakaTimeFormat(): string
